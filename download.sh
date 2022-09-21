@@ -1,34 +1,25 @@
 #!/bin/bash
-PS4='${LINENO}: '
 
 source set_up.sh $@
 
 parallel_download_fn()
 {
-	COMMAND=""
+	COMMAND_STRING=""
 	while read args;do
-		COMMAND+="./single_download.sh ${args} & "
+		COMMAND_STRING+="./single_download.sh ${args} & "
 	done < ${CONFIG}
 
-	FINAL_COMMAND=$(sed 's/.\{2\}$//' <<< "$COMMAND")
-	echo "final command: $FINAL_COMMAND"
-	
+	FINAL_COMMAND=$(sed 's/.\{2\}$//' <<< "$COMMAND_STRING")
 	eval $FINAL_COMMAND
 }
 
-if [[ -z $OUTPUT ]];
-then
-	echo "OUTPUT not found ${OUTPUT}"
-	export OUTPUT="/tmp/${URI}"
-fi
-
+# If URI is given in command line, assume that this is a single download
 if [[ ! -z $URI ]];
 then
-	curl --silent --retry $RETRY --output $OUTPUT $URI
+	./single_download.sh --output $OUTPUT --uri $URI
 else
 	echo "Running parallel downloads"
 	parallel_download_fn $CONFIG || exit $?
 fi
-echo "Finished"
 exit 0
 
