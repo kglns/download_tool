@@ -16,10 +16,13 @@ parallel_download_fn()
 # If URI is given in command line, assume that this is a single download
 if [[ ! -z $URI ]];
 then
-	./single_download.sh --output $OUTPUT --uri $URI
+		./single_download.sh --uri $URI
 else
 	echo "Running parallel downloads"
-	parallel_download_fn $CONFIG || exit $?
+	parallel_download_fn $CONFIG || {
+		echo "Something went wrong in parallel_download_fn - error code $?"
+		exit $?
+	}
 fi
 exit 0
 
