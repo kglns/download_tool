@@ -1,8 +1,13 @@
-#!/bin/bash -e
+#!/bin/bash
 PS4='${LINENO}: '
 
+# Pick up args and set up ENV vars
 source set_up.sh $@
 
+# To add a new protocol
+# 1. Add a new case
+# 2. Define a function
+# 3. Export it as DOWNLOAD_FN (generic_download_fn will pick it up and handle the error in standardized way)
 case $PROTOCOL in
 	http|https|ftp|sftp)
 		export CURL_URI="$PROTOCOL://$URI"
@@ -15,10 +20,13 @@ case $PROTOCOL in
 
 esac
 
+# curl-specific implementation
+# This can be highly customized in conjunction with config.sh
 curl_fn() {
-	curl --silent --retry $RETRY --output $OUTPUT $CURL_URI 
+	curl --fail-with-body --retry $RETRY --output $OUTPUT $CURL_URI 
 }
 
+# try a protocol-specific download fn and catch / handle errors
 generic_download_fn() {
 	{ 
 		$DOWNLOAD_FN
@@ -32,6 +40,3 @@ generic_download_fn() {
 }
 
 generic_download_fn $DOWNLOAD_FN
-
-
-
