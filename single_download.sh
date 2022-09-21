@@ -9,9 +9,13 @@ source set_up.sh $@
 # 2. Define a function
 # 3. Export it as DOWNLOAD_FN (generic_download_fn will pick it up and handle the error in standardized way)
 case $PROTOCOL in
-	http|https|ftp|sftp)
+	http|https|ftp)
 		export CURL_URI="$PROTOCOL://$URI"
 		export DOWNLOAD_FN=curl_fn
+		;;
+	sftp)
+		export CURL_URI="$PROTOCOL://$URI"
+		export DOWNLOAD_FN=secure_curl_fn
 		;;
 	*)
 		echo "$PROTOCOL is not supported"
@@ -26,12 +30,16 @@ curl_fn() {
 	curl --fail-with-body --retry $RETRY --output $OUTPUT $CURL_URI 
 }
 
+secure_curl_fn() {
+	curl --fail-with-body --hostpubsha256 $PUBSHA256--retry $RETRY --output $OUTPUT $CURL_URI 
+}
+
 # try a protocol-specific download fn and catch / handle errors
 generic_download_fn() {
 	{ 
 		$DOWNLOAD_FN
 	} || {
-		echo "Download failed with error code $?: removing file $OUTPUT"
+		echo "Download failed with error code $?: attempting to remove file $OUTPUT"
 		if [[ ! -z $OUTPUT ]];then
 			rm -vf $OUTPUT
 		fi
@@ -39,4 +47,6 @@ generic_download_fn() {
 	}
 }
 
-generic_download_fn $DOWNLOAD_FN
+generic_download_fn $DOWNLOAD_FN && {
+	echo "Download successful for file: $OUTPUT"
+}
