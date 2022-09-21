@@ -34,13 +34,14 @@ while (("$#")); do
 	esac
 done
 
-# Define default parameters here
+# Source and define parameters here
 source config.sh
 
 if [[ -z $PROTOCOL ]];then
 	export PROTOCOL=$DEFAULT_PROTOCOL
 fi
 
+# If custom output filename is not given, create a default filename
 if [[ -z $OUTPUT ]];then
 	NORMALIZED_FILENAME=$(echo $URI | tr "[/,:]" "-" | tr -s "-")
 	FILEPATH="$DEFAULT_DIR/$NORMALIZED_FILENAME"
