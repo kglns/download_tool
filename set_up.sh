@@ -51,7 +51,7 @@ fi
 
 # Use URI as a reference to generate file name (e.g. resource1.com/file -> resourc1.com-file)
 # This will prevent name clashes
-NORMALIZED_FILENAME=$(echo $URI | tr "[/,:]" "-" | tr -s "-")
+NORMALIZED_FILENAME=$(echo $URI | tr "[/,:,@]" "-" | tr -s "-")
 FILEPATH="$DEFAULT_DIR/$NORMALIZED_FILENAME"
 
 # If the file name exists, then remove it to overwrite
